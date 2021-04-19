@@ -79,7 +79,6 @@ public class SubscribeFragment extends Fragment implements MessageResponse {
         }
     }
 
-    //获取推荐论文之后的回调函数
     @Override
     public void onReceived(String res) {
         Gson gson = new Gson();
