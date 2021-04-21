@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,7 @@ import com.example.lalala.PaperActivity;
 import com.example.lalala.R;
 import com.example.lalala.entity.PaperSimpleData;
 import com.example.lalala.entity.SquarePaperData;
+import com.example.lalala.entity.UserActionData;
 import com.example.lalala.entity.UserHistoryEntity;
 import com.example.lalala.shared_info.SaveUser;
 
@@ -52,6 +54,7 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
         public TextView title;
         public TextView abst;
         public TextView browseNum;
+        public Button share;
         public Button dislike;
         //public TextView citeNum;
 
@@ -64,6 +67,7 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
             title = view.findViewById(R.id.title);
             abst = view.findViewById(R.id.abst);
             browseNum = view.findViewById(R.id.browseNum);
+            share = view.findViewById(R.id.share);
             dislike = view.findViewById(R.id.dislike);
         }
     }
@@ -89,13 +93,15 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
             holder.subscribe.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    System.out.println("click subscribe button");
                     if(paperBrowseItems.get(position).getSquarePaperRecommendData().getUserSubscribeData().isSubscribe()){
                         paperBrowseItems.get(position).getSquarePaperRecommendData().getUserSubscribeData().setSubscribe(false);
-                        SaveUser.userSubscribe.remove(squarePaperData.getSquarePaperRecommendData().getUserSubscribeData().getUserId());
+                        SaveUser.userSubscribeActionList.getActions().put(squarePaperData.getSquarePaperRecommendData().getUserSubscribeData().getUserId(), false);
                     }else{
                         paperBrowseItems.get(position).getSquarePaperRecommendData().getUserSubscribeData().setSubscribe(true);
-                        SaveUser.userSubscribe.add(squarePaperData.getSquarePaperRecommendData().getUserSubscribeData().getUserId());
+                        SaveUser.userSubscribeActionList.getActions().put(squarePaperData.getSquarePaperRecommendData().getUserSubscribeData().getUserId(), true);
                     }
+                    notifyItemChanged(position);
                 }
             });
             if(paperBrowseItems.get(position).getSquarePaperRecommendData().getUserSubscribeData().isSubscribe()) {
@@ -104,18 +110,27 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
                 holder.subscribe.setBackgroundResource(R.drawable.unsubscribe);
             }
         }else {
-            System.out.println("onBindViewHolder: position = " + position);
+            //System.out.println("onBindViewHolder: position = " + position);
             paperSimpleData = paperSimpleDataList.get(position);
             holder.userData.setVisibility(View.GONE);
         }
-        if(type==3){
-            System.out.println("hotPaperFragment");
-        }
+        holder.share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SaveUser.userShareActionList.getActions().put(paperSimpleData.getPaperEntity().getId(), true);
+                Toast.makeText(context, "已分享至广场！", Toast.LENGTH_SHORT).show();
+            }
+        });
         holder.dislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SaveUser.userDislike.add(paperSimpleData.getPaperEntity().getId());
-                paperBrowseItems.remove(position);
+                System.out.println("click dislike button");
+                if(type == 1){
+                    paperBrowseItems.remove(position);
+                }else{
+                    paperSimpleDataList.remove(position);
+                }
+                SaveUser.userDislikeList.getActions().put(paperSimpleData.getPaperEntity().getId(), true);
                 notifyItemRemoved(position);
             }
         });
@@ -124,12 +139,8 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
             @Override
             public void onClick(View v) {
                 SaveUser.currentPaper = paperSimpleData;
-                UserHistoryEntity userHistoryEntity = new UserHistoryEntity();
-                userHistoryEntity.setUserId(SaveUser.userInfoEntity.getId());
-                userHistoryEntity.setPaperId(paperSimpleData.getPaperEntity().getId());
-                userHistoryEntity.setBrowseTime(new Date());
-                userHistoryEntity.setUncheck(true);
-                SaveUser.browseHistory.add(userHistoryEntity);
+                SaveUser.userHistoryEntities.add(paperSimpleData.getPaperEntity().getId());
+                SaveUser.userHistoryPaperData.add(0, paperSimpleData);
                 intent = new Intent(context, PaperActivity.class);
                 context.startActivity(intent);
             }
@@ -138,9 +149,6 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
         holder.title.setText(paperSimpleData.getPaperEntity().getTitle());
         holder.abst.setText(paperSimpleData.getPaperEntity().getAbst());
         holder.browseNum.setText("浏览量 " + paperSimpleData.getPaperEntity().getBrowseNum() + " · 热度 " + paperSimpleData.getPaperEntity().getRecentBrowseNum());
-        if(position == getItemCount()){
-
-        }
     }
 
     @Override

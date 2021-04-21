@@ -20,13 +20,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.lalala.R;
+import com.example.lalala.entity.PaperEntity;
 import com.example.lalala.entity.PaperSimpleData;
 import com.example.lalala.entity.UserHistoryEntity;
 import com.example.lalala.http.GetSubscribeUserTask;
-import com.example.lalala.http.GetUserHistoryTask;
+import com.example.lalala.http.GetUserShareTask;
 import com.example.lalala.http.MessageResponse;
 import com.example.lalala.shared_info.SaveUser;
-import com.example.lalala.ui.browse_fragment.EndlessRecyclerOnScrollListener;
 import com.example.lalala.ui.browse_fragment.PageViewModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -36,17 +36,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class HistoryFragment extends Fragment implements MessageResponse {
+public class ShareFragment extends Fragment implements MessageResponse {
 
     RecyclerView paperViewList;
     PageViewModel pageViewModel;
-    HistoryListAdapter historyListAdapter;
-    List<PaperSimpleData> userHistoryList = SaveUser.userHistoryPaperData;
+    List<PaperSimpleData> userShareList = new ArrayList<>();
+    ShareListAdapter shareListAdapter;
 
-    public static HistoryFragment newInstance() {
-        return new HistoryFragment();
+    public static ShareFragment newInstance() {
+        return new ShareFragment();
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class HistoryFragment extends Fragment implements MessageResponse {
         pageViewModel.getmIndex().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
-                getHistory();
+                getShare();
             }
         });
     }
@@ -66,11 +65,10 @@ public class HistoryFragment extends Fragment implements MessageResponse {
     public View onCreateView(
             @NonNull final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        System.out.println("History: onCreateView");
-        View root = inflater.inflate(R.layout.fragment_history, container, false);
-        paperViewList = root.findViewById(R.id.historyList);
-        historyListAdapter = new HistoryListAdapter(userHistoryList, getActivity());
-        paperViewList.setAdapter(historyListAdapter);
+        View root = inflater.inflate(R.layout.fragment_share, container, false);
+        paperViewList = root.findViewById(R.id.shareList);
+        shareListAdapter = new ShareListAdapter(userShareList, getActivity());
+        paperViewList.setAdapter(shareListAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         paperViewList.setLayoutManager(layoutManager);
         return root;
@@ -81,12 +79,12 @@ public class HistoryFragment extends Fragment implements MessageResponse {
     }
 
     //获取历史记录
-    private void getHistory() {
-        GetUserHistoryTask getUserHistoryTask = new GetUserHistoryTask();
-        getUserHistoryTask.setMessageResponse(this);
-        getUserHistoryTask.execute();
+    private void getShare() {
+        GetUserShareTask getUserShareTask = new GetUserShareTask();
+        getUserShareTask.setMessageResponse(this);
+        getUserShareTask.execute();
         try {
-            getUserHistoryTask.get();
+            getUserShareTask.get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -94,19 +92,11 @@ public class HistoryFragment extends Fragment implements MessageResponse {
 
     @Override
     public void onReceived(String res) {
-        System.out.println("userHistoryData:" + res);
-        Type type = new TypeToken<List<PaperSimpleData>>() {
-        }.getType();
+        System.out.println("userShareList: " + res);
         Gson gson = new Gson();
+        Type type = new TypeToken<List<PaperSimpleData>>(){}.getType();
         List<PaperSimpleData> temp = gson.fromJson(res, type);
-        for(PaperSimpleData paperSimpleData: temp){
-            if(!SaveUser.userHistoryEntities.contains(paperSimpleData.getPaperEntity().getId())){
-                userHistoryList.add(paperSimpleData);
-                SaveUser.userHistoryEntities.add(paperSimpleData.getPaperEntity().getId());
-            }
-        }
-        System.out.println("userHistoryDataSize:" + userHistoryList.size());
-        historyListAdapter.notifyDataSetChanged();
-        System.out.println("userHistoryDataSize:" + historyListAdapter.getItemCount());
+        userShareList.addAll((temp));
+        shareListAdapter.notifyDataSetChanged();
     }
 }

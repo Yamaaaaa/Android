@@ -18,27 +18,21 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_follow"
+        android:id="@+id/nav_history"
         android:name="com.example.lalala.ui.follow.HistoryFragment"
-        android:label="@string/menu_follow"
-        tools:layout="@layout/fragment_follow" />
+        android:label="@string/menu_history"
+        tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/nav_subscribe"
         android:name="com.example.lalala.ui.follow.SubscribeFragment"
         android:label="@string/menu_subscribe"
-        tools:layout="@layout/fragment_follow" />
+        tools:layout="@layout/fragment_subscribe" />
 
     <fragment
         android:id="@+id/nav_share"
-        android:name="com.example.lalala.ui.follow.SubscribeFragment"
+        android:name="com.example.lalala.ui.follow.ShareFragment"
         android:label="@string/menu_share"
-        tools:layout="@layout/fragment_follow" />
-
-    <fragment
-        android:id="@+id/nav_dislike"
-        android:name="com.example.lalala.ui.follow.SubscribeFragment"
-        android:label="@string/menu_share"
-        tools:layout="@layout/fragment_follow" />
+        tools:layout="@layout/fragment_share" />
 
 </navigation>

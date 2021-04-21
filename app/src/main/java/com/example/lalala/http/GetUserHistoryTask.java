@@ -7,14 +7,19 @@ import com.google.gson.Gson;
 
 public class GetUserHistoryTask extends AsyncTask<Void, Void, String> {
 
+    private MessageResponse messageResponse;
+
+    public void setMessageResponse(MessageResponse messageResponse) {
+        this.messageResponse = messageResponse;
+    }
+
     @Override
     protected String doInBackground(Void... voids) {
-        return HttpHandler.doGet(HttpHandler.recommendUrl + "/getUserHistory?userId="+ SaveUser.userInfoEntity.getId(), "");
+        return HttpHandler.doGet(HttpHandler.paperUrl + "/userHistory?userId="+ SaveUser.userInfoEntity.getId(), "");
     }
 
     @Override
     protected void onPostExecute(String res) {
-        Gson gson = new Gson();
-        SaveUser.browsePaperData = gson.fromJson(res, SaveUser.browsePaperData.getClass());
+        messageResponse.onReceived(res);
     }
 }

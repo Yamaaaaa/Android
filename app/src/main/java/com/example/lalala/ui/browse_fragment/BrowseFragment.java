@@ -45,6 +45,9 @@ public class BrowseFragment extends Fragment implements MessageResponse{
     public int fragmentType;
     SquareAdapter squareAdapter;
 
+    //新建fragment时，获取论文列表的次数
+    int getPaperNum = 0;
+
     public static BrowseFragment newInstance(int index) {
         BrowseFragment fragment = new BrowseFragment();
         Bundle bundle = new Bundle();
@@ -55,12 +58,23 @@ public class BrowseFragment extends Fragment implements MessageResponse{
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        System.out.println("fragmentType = " + fragmentType);
+        System.out.println("onCreate");
         super.onCreate(savedInstanceState);
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
         if (getArguments() != null) {
             fragmentType = getArguments().getInt(BROWSETYPE);
         }
         pageViewModel.setIndex(fragmentType);
+        pageViewModel.getmIndex().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                System.out.println("界面类型：" + fragmentType);
+                System.out.println("获取论文");
+                ++getPaperNum;
+                getPapers();
+            }
+        });
     }
 
     @Override
@@ -69,15 +83,6 @@ public class BrowseFragment extends Fragment implements MessageResponse{
             Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_browse, container, false);
-
-        pageViewModel.getmIndex().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                System.out.println("界面类型：" + fragmentType);
-                System.out.println("获取论文");
-                getPapers();
-            }
-        });
 
         paperViewList = root.findViewById(R.id.paperList);
 
@@ -92,6 +97,8 @@ public class BrowseFragment extends Fragment implements MessageResponse{
         paperViewList.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
             public void onLoadMore() {
+                System.out.println("fragmentType = "+ fragmentType);
+                System.out.println("触发下拉刷新，加载新论文");
                 getPapers();
             }
         });
@@ -105,6 +112,7 @@ public class BrowseFragment extends Fragment implements MessageResponse{
 
     //刚进入与到达最后一篇论文时会运行该函数
     private void getPapers() {
+
         if(fragmentType == 1){
             Log.d("论文浏览界面", "获取广场论文列表");
             GetSquarePaperTask getSquarePaperTask = new GetSquarePaperTask();
@@ -145,6 +153,7 @@ public class BrowseFragment extends Fragment implements MessageResponse{
     @Override
     public void onReceived(String res) {
         System.out.println("fragmentType:" + fragmentType);
+        System.out.println("获取论文的次数："+ getPaperNum);
         System.out.println("获取论文列表:" + res);
         Gson gson = new Gson();
         if(fragmentType == 1){
@@ -159,5 +168,12 @@ public class BrowseFragment extends Fragment implements MessageResponse{
             System.out.println("论文列表Size:"+paperRecItems.size());
         }
         squareAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onDestroy() {
+        System.out.println("fragmentType = " + fragmentType);
+        System.out.println("onDestroy");
+        super.onDestroy();
     }
 }

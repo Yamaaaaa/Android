@@ -41,27 +41,18 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SearchAdapter.ViewHolder holder, int position) {
-        final PaperSimpleData item = searchResultPapers.get(position);
+        final PaperSimpleData paperSimpleData = searchResultPapers.get(position);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserHistoryEntity userHistoryEntity = new UserHistoryEntity();
-                userHistoryEntity.setUserId(SaveUser.userInfoEntity.getId());
-                userHistoryEntity.setPaperId(item.getPaperEntity().getId());
-                userHistoryEntity.setBrowseTime(new Date());
-                userHistoryEntity.setUncheck(true);
-                SaveUser.browseHistory.add(userHistoryEntity);
-
-                SaveUser.currentPaper = item;
+                SaveUser.userHistoryEntities.add(paperSimpleData.getPaperEntity().getId());
+                SaveUser.userHistoryPaperData.add(0, paperSimpleData);
+                SaveUser.currentPaper = paperSimpleData;
             }
         });
-        holder.title.setText(item.getPaperEntity().getTitle());
-        //holder.author.setText(item.getAuthor());
-        List<String> tagSimpleData = item.getTags();
-        holder.tag1.setText(tagSimpleData.get(0));
-        holder.tag2.setText(tagSimpleData.get(1));
-        holder.tag3.setText(tagSimpleData.get(2));
-        holder.browseNum.setText("点击量" + item.getPaperEntity().getBrowseNum());
+        holder.title.setText(paperSimpleData.getPaperEntity().getTitle());
+        holder.abst.setText(paperSimpleData.getPaperEntity().getAbst());
+        holder.browseNum.setText("浏览量 " + paperSimpleData.getPaperEntity().getBrowseNum() + " · 热度 " + paperSimpleData.getPaperEntity().getRecentBrowseNum());
     }
 
     @Override
@@ -76,15 +67,13 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
-        public TextView tag1, tag2, tag3;
+        public TextView abst;
         public TextView browseNum;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.title);
-            tag1 = itemView.findViewById(R.id.tag1);
-            tag2 = itemView.findViewById(R.id.tag2);
-            tag3 = itemView.findViewById(R.id.tag3);
+            abst = itemView.findViewById(R.id.abst);
             browseNum = itemView.findViewById(R.id.browseNum);
         }
     }

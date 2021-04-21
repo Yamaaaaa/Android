@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 public class SubscribeListAdapter  extends RecyclerView.Adapter<SubscribeListAdapter.ViewHolder>{
-    private List<UserSubscribeData> userSubscribeDataList = new ArrayList<>();
+    private List<UserSubscribeData> userSubscribeDataList;
     private Context context;
     private Intent intent;
 
@@ -59,6 +59,7 @@ public class SubscribeListAdapter  extends RecyclerView.Adapter<SubscribeListAda
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        System.out.println("subscribe: " + "onBindViewHolder" + " position = " + position);
         final UserSubscribeData userSubscribeData = userSubscribeDataList.get(position);
         holder.userName.setText(userSubscribeData.getUserName());
         holder.subscribe.setOnClickListener(new View.OnClickListener() {
@@ -66,13 +67,19 @@ public class SubscribeListAdapter  extends RecyclerView.Adapter<SubscribeListAda
             public void onClick(View v) {
                 if(userSubscribeDataList.get(position).isSubscribe()){
                     userSubscribeDataList.get(position).setSubscribe(false);
-                    SaveUser.userSubscribe.remove(userSubscribeDataList.get(position).getUserId());
+                    SaveUser.userSubscribeActionList.getActions().put(userSubscribeDataList.get(position).getUserId(), false);
                 }else{
                     userSubscribeDataList.get(position).setSubscribe(true);
-                    SaveUser.userSubscribe.add(userSubscribeDataList.get(position).getUserId());
+                    SaveUser.userSubscribeActionList.getActions().put(userSubscribeDataList.get(position).getUserId(), true);
                 }
+                notifyItemChanged(position);
             }
         });
+        if(userSubscribeDataList.get(position).isSubscribe()) {
+            holder.subscribe.setBackgroundResource(R.drawable.subscribe);
+        }else{
+            holder.subscribe.setBackgroundResource(R.drawable.unsubscribe);
+        }
     }
 
     @Override

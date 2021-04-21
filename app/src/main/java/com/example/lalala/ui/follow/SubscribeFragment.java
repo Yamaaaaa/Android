@@ -21,7 +21,9 @@ import com.example.lalala.http.MessageResponse;
 import com.example.lalala.shared_info.SaveUser;
 import com.example.lalala.ui.browse_fragment.PageViewModel;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 public class SubscribeFragment extends Fragment implements MessageResponse {
     RecyclerView userSubscribeRecyclerView;
     PageViewModel pageViewModel;
+    List<UserSubscribeData> userSubscribeDataList = new ArrayList<>();
+    SubscribeListAdapter subscribeListAdapter;
 
     public static SubscribeFragment newInstance(int index) {
         SubscribeFragment fragment = new SubscribeFragment();
@@ -46,6 +50,12 @@ public class SubscribeFragment extends Fragment implements MessageResponse {
         }
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel.class);
         pageViewModel.setIndex(0);
+        pageViewModel.getmIndex().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                getSubscribeUser();
+            }
+        });
     }
 
     @Override
@@ -53,18 +63,16 @@ public class SubscribeFragment extends Fragment implements MessageResponse {
             @NonNull final LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_browse, container, false);
-        pageViewModel.getmIndex().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                getSubscribeUser();
-            }
-        });
+        userSubscribeRecyclerView = root.findViewById(R.id.paperList);
+        subscribeListAdapter = new SubscribeListAdapter(userSubscribeDataList, getActivity());
+        userSubscribeRecyclerView.setAdapter(subscribeListAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        userSubscribeRecyclerView.setLayoutManager(layoutManager);
         return root;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        userSubscribeRecyclerView = view.findViewById(R.id.subscribeList);
     }
 
     //获取订阅用户
@@ -82,11 +90,9 @@ public class SubscribeFragment extends Fragment implements MessageResponse {
     @Override
     public void onReceived(String res) {
         Gson gson = new Gson();
-        List<UserSubscribeData> userSubscribeDataList = new ArrayList<>();
-        userSubscribeDataList = gson.fromJson(res, userSubscribeDataList.getClass());
-        SubscribeListAdapter subscribeListAdapter = new SubscribeListAdapter(userSubscribeDataList, getActivity());
-        userSubscribeRecyclerView.setAdapter(subscribeListAdapter);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        userSubscribeRecyclerView.setLayoutManager(layoutManager);
+        Type type = new TypeToken<List<UserSubscribeData>>(){}.getType();
+        List<UserSubscribeData> temp = gson.fromJson(res, type);
+        userSubscribeDataList.addAll(temp);
+        subscribeListAdapter.notifyDataSetChanged();
     }
 }

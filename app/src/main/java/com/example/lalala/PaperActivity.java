@@ -17,7 +17,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.lalala.http.FinalTask;
 import com.example.lalala.shared_info.SaveUser;
 import com.example.lalala.tool.PixelTool;
 import com.google.android.flexbox.FlexboxLayout;
@@ -32,16 +31,8 @@ import java.util.Set;
 public class PaperActivity extends AppCompatActivity {
     private ScrollView scrollView;
     private LinearLayout linearLayout;
-    private FlexboxLayout flexboxLayout_add;
     private FlexboxLayout flexboxLayout_exist;
-    private FlexboxLayout flexboxLayout_rec;
-
-    private int seconds;             //在页面的停留时间
-
-    private Button btnTest;
-
-    private Set<String> addTags = new HashSet<>();            //自定义的tags
-
+    private FlexboxLayout flexboxLayout_userAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +45,19 @@ public class PaperActivity extends AppCompatActivity {
         tvPaperTitle.setText(SaveUser.currentPaper.getPaperEntity().getTitle());
 
 
-        tvPaperAbstract.setText(SaveUser.currentPaper.getPaperEntity().getTitle());
+        tvPaperAbstract.setText(SaveUser.currentPaper.getPaperEntity().getAbst());
 
         //显示已有tags
         flexboxLayout_exist = findViewById(R.id.fl_tags);
         for (String tag : SaveUser.currentPaper.getTags()) {
             newButton(tag,flexboxLayout_exist);
+        }
+
+        flexboxLayout_userAdd = findViewById(R.id.fl_user_add_tags);
+        if(SaveUser.paperTagData.containsKey(SaveUser.currentPaper.getPaperEntity().getId())) {
+            for (String tag : SaveUser.paperTagData.get(SaveUser.currentPaper.getPaperEntity().getId())) {
+                newButton(tag, flexboxLayout_userAdd);
+            }
         }
 
 //        //显示添加的tags
@@ -79,7 +77,6 @@ public class PaperActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        SaveUser.paperTagData.put(SaveUser.currentPaper.getPaperEntity().getId(), addTags);
 
         Log.d("PaperActivity", "onDestroy: begin final");
         super.onDestroy();
@@ -94,16 +91,24 @@ public class PaperActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String tagName = et.getText().toString();
-                        if (addTags.contains(tagName)) {
-                            Toast toast = Toast.makeText(PaperActivity.this, "标签已存在！", Toast.LENGTH_SHORT);
-                            toast.show();
-                        } //else if(SaveUser.currentPaper.getTags().contains(tagName)) {
+                        if(SaveUser.paperTagData.containsKey(SaveUser.currentPaper.getPaperEntity().getId())) {
+                            if (SaveUser.paperTagData.get(SaveUser.currentPaper.getPaperEntity().getId()).contains(tagName)) {
+                                Toast toast = Toast.makeText(PaperActivity.this, "标签已存在！", Toast.LENGTH_SHORT);
+                                toast.show();
+                            } //else if(SaveUser.currentPaper.getTags().contains(tagName)) {
 
-                        //}
-                        else {
-                            addTags.add(tagName);
-                            newButton(tagName, flexboxLayout_add);
+                            //}
+                            else {
+                                SaveUser.paperTagData.get(SaveUser.currentPaper.getPaperEntity().getId()).add(tagName);
+                                newButton(tagName, flexboxLayout_userAdd);
+                            }
+                        }else{
+                            SaveUser.paperTagData.put(SaveUser.currentPaper.getPaperEntity().getId(), new HashSet<String>());
+                            SaveUser.paperTagData.get(SaveUser.currentPaper.getPaperEntity().getId()).add(tagName);
+                            newButton(tagName, flexboxLayout_userAdd);
                         }
+                        System.out.println("paperTagData: " + SaveUser.paperTagData);
+                        assert SaveUser.paperTagData.get(SaveUser.currentPaper.getPaperEntity().getId()).size() > 0;
                     }
                 }).setNegativeButton("取消", null).show();
     }
@@ -128,13 +133,13 @@ public class PaperActivity extends AppCompatActivity {
         btn_tag.setTextSize(18);
         btn_tag.setLayoutParams(lp);
 
-        switch (flexboxLayout.getId()) {
-            case R.id.fl_tags:
-                break;
-            case R.id.fl_add_tags:
-                btn_tag.setOnClickListener(new onClickAdd());
-                break;
-        }
+//        switch (flexboxLayout.getId()) {
+//            case R.id.fl_tags:
+//                break;
+//            case R.id.fl_add_tags:
+//                btn_tag.setOnClickListener(new onClickAdd());
+//                break;
+//        }
 
         flexboxLayout.addView(btn_tag);
     }
@@ -170,12 +175,12 @@ public class PaperActivity extends AppCompatActivity {
 //        }
 //    }
 
-    class onClickAdd implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            String tagName = ((Button) v).getText().toString();
-            addTags.remove(tagName);
-            flexboxLayout_add.removeView(v);
-        }
-    }
+//    class onClickAdd implements View.OnClickListener {
+//        @Override
+//        public void onClick(View v) {
+//            String tagName = ((Button) v).getText().toString();
+//            addTags.remove(tagName);
+//            flexboxLayout_add.removeView(v);
+//        }
+//    }
 }

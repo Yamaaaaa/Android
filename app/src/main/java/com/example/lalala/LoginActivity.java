@@ -92,6 +92,7 @@ public class LoginActivity extends AppCompatActivity implements MessageResponse,
         generateUserSimilarityData();
         Intent intent = new Intent(LoginActivity.this, UserActivity.class);
         startActivity(intent);
+        finish();
     }
 
     //向服务器请求生成用户喜好数据

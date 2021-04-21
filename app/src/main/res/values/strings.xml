@@ -9,7 +9,7 @@
 
     <string name="menu_homeP">主页</string>
     <string name="menu_home">个人主页</string>
-    <string name="menu_follow">浏览记录</string>
+    <string name="menu_history">浏览记录</string>
     <string name="menu_subscribe">订阅用户</string>
     <string name="menu_share">分享论文</string>
     <string name="menu_dislike">屏蔽论文</string>
