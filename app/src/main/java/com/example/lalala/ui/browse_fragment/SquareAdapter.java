@@ -87,6 +87,7 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
             final SquarePaperData squarePaperData = paperBrowseItems.get(position);
             paperSimpleData = new PaperSimpleData();
             paperSimpleData.setPaperEntity(squarePaperData.getPaperEntity());
+
             paperSimpleData.setTags(squarePaperData.getSquarePaperRecommendData().getTags());
             holder.userData.setVisibility(View.VISIBLE);
             holder.userName.setText(squarePaperData.getSquarePaperRecommendData().getUserSubscribeData().getUserName());
@@ -138,6 +139,14 @@ public class SquareAdapter extends RecyclerView.Adapter<SquareAdapter.ViewHolder
         holder.paperData.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                if(type == 1){
+                    paperBrowseItems.get(position).getPaperEntity().setRecentBrowseNum(paperBrowseItems.get(position).getPaperEntity().getRecentBrowseNum() + 1);
+                    paperBrowseItems.get(position).getPaperEntity().setBrowseNum(paperBrowseItems.get(position).getPaperEntity().getBrowseNum() + 1);
+                }else{
+                    paperSimpleDataList.get(position).getPaperEntity().setRecentBrowseNum(paperSimpleDataList.get(position).getPaperEntity().getRecentBrowseNum() + 1);
+                    paperSimpleDataList.get(position).getPaperEntity().setBrowseNum(paperSimpleDataList.get(position).getPaperEntity().getBrowseNum() + 1);
+                }
+                notifyItemChanged(position);
                 SaveUser.currentPaper = paperSimpleData;
                 SaveUser.userHistoryEntities.add(paperSimpleData.getPaperEntity().getId());
                 SaveUser.userHistoryPaperData.add(0, paperSimpleData);

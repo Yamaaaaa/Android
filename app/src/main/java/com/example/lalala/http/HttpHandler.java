@@ -1,5 +1,6 @@
 package com.example.lalala.http;
 
+import android.annotation.TargetApi;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.util.Log;
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 public class HttpHandler {
-    static private final String baseUrl = "http://192.168.2.106:";
+    static private final String baseUrl = "http://192.168.1.6:";
     static public final String recommendUrl = baseUrl + "50002";
     static public final String tagUrl = baseUrl + "50003";
     static public final String paperUrl = baseUrl + "50001";
@@ -148,6 +149,7 @@ public class HttpHandler {
     }
 
     //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
     public static String doPostWithForm(String url, Map<String, String> paramsMap) {
         String result = null;
         //PrintWriter out = null;
